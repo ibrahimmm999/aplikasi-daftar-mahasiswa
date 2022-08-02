@@ -3,7 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
+import 'controllers.dart';
+import 'package:get/get.dart';
 import 'form.dart';
 
 void main() async {
@@ -11,11 +12,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  runApp(MaterialApp(
-      //remove the debug banner
-      debugShowCheckedModeBanner: false,
-      title: "Data Mahasiswa App",
-      home: MyApp()));
+  runApp(GetBuilder<Controllers>(
+    init: Controllers(),
+    builder: (controller) {
+      return MaterialApp(
+          //remove the debug banner
+          debugShowCheckedModeBanner: false,
+          theme: controller.isLight ? ThemeData.light() : ThemeData.dark(),
+          title: "Data Mahasiswa App",
+          home: MyApp());
+    },
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -34,10 +41,21 @@ class _MyAppState extends State<MyApp> {
 
     return Scaffold(
       appBar: AppBar(
+          actions: [
+            Container(
+                margin: EdgeInsets.only(right: 10),
+                child: IconButton(
+                    onPressed: () {
+                      Get.find<Controllers>().changeTheme();
+                    },
+                    icon: Icon(
+                      Icons.change_circle_outlined,
+                      size: 32,
+                    )))
+          ],
           //make appbar with icon
-          title: Center(
-        child: Text("DATA MAHASISWA"),
-      )),
+          title: Text("DATA MAHASISWA"),
+          centerTitle: true),
       body: FutureBuilder<QuerySnapshot>(
         //data to be retrieved in the future
         future: users.get(),
